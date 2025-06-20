@@ -48,11 +48,7 @@ func customizedRegister(r *server.Hertz) {
 	{
 		auth.GET("/ping", handler.Ping)
 	}
-
-	// 服务api更新
-	if conf.GetConf().Server.AutoUpdateApi {
-		//api.UpdateApiByRoutes(db.DB, r)
-	}
+	
 }
 
 var (

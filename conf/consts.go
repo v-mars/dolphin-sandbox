@@ -23,6 +23,7 @@ const (
 
 	RequestIDHeaderValue = "X-Request-ID"
 	SchemeHeaderValue    = "X-Sandbox-Scheme"
+	SchemeKeyValue       = "X-Sandbox-Key"
 	HeaderEncTag         = "X-Enc-Data"
 
 	// AppAccessLogFile 项目访问日志存放文件

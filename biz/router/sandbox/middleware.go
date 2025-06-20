@@ -3,12 +3,19 @@
 package sandbox
 
 import (
+	"dolphin-sandbox/biz/dal"
+	"dolphin-sandbox/biz/mw"
+	"dolphin-sandbox/conf"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
 func rootMw() []app.HandlerFunc {
+	var funcs = []app.HandlerFunc{
+		mw.MaxWorker(conf.GetConf().Sandbox.MaxWorkers, mw.AllowPathPrefixSkipper(dal.NoLogin...)),
+		mw.MaxRequest(conf.GetConf().Sandbox.MaxRequests, mw.AllowPathPrefixSkipper(dal.NoLogin...)),
+	}
 	// your code...
-	return nil
+	return funcs
 }
 
 func _apiMw() []app.HandlerFunc {

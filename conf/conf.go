@@ -20,6 +20,7 @@ type Config struct {
 	Authentication Authentication `yaml:"authentication"` //登录验证配置
 	Server         Server         `yaml:"server"`         //服务器配置
 	Ext            Ext            `yaml:"ext"`
+	Sandbox        Sandbox        `yaml:"sandbox" json:"sandbox"`
 	JWT            JWT            `yaml:"jwt"`
 	Acl            Acl            `yaml:"acl"`
 }
@@ -95,12 +96,26 @@ type Server struct {
 	LogMaxAge      int    `yaml:"log_max_age"`
 	EnableRegistry bool   `yaml:"enable_registry"`
 	EnableSwagger  bool   `yaml:"enable_swagger"`
-	AutoUpdateApi  bool   `yaml:"auto_update_api"`
-	RegistryCenter string `yaml:"registry_center"`
-	CronType       string `yaml:"cron_type"`
-	CertCrt        string `yaml:"cert_crt"`
-	CertKey        string `yaml:"cert_key"`
-	DBType         string `yaml:"dbtype"`
+	ApiKey         string `json:"api_key" yaml:"api_key"`
+}
+
+type Sandbox struct {
+	MaxWorkers               int      `yaml:"max_workers" json:"max_workers"`
+	MaxRequests              int      `yaml:"max_requests" json:"max_requests"`
+	WorkerTimeout            int      `yaml:"worker_timeout" json:"worker_timeout"`
+	PythonPath               string   `yaml:"python_path" json:"python_path"`
+	PythonLibPaths           []string `yaml:"python_lib_path" json:"python_lib_paths"`
+	PythonPipMirrorURL       string   `yaml:"python_pip_mirror_url" json:"python_pip_mirror_url"`
+	PythonDepsUpdateInterval string   `yaml:"python_deps_update_interval" json:"python_deps_update_interval"`
+	NodejsPath               string   `yaml:"nodejs_path" json:"nodejs_path"`
+	EnableNetwork            bool     `yaml:"enable_network" json:"enable_network"`
+	EnablePreload            bool     `yaml:"enable_preload" json:"enable_preload"`
+	AllowedSyscalls          []int    `yaml:"allowed_syscalls" json:"allowed_syscalls"`
+	Proxy                    struct {
+		Socks5 string `yaml:"socks5" json:"socks5"`
+		Https  string `yaml:"https" json:"https"`
+		Http   string `yaml:"http" json:"http"`
+	} `yaml:"proxy" json:"proxy"`
 }
 
 // GetConf gets configuration instance
@@ -124,6 +139,7 @@ func initConf() {
 	conf.Server.LogLevel = "./log/std.log"
 	conf.Server.LogLevel = "debug"
 	conf.Server.EnableSwagger = true
+	conf.Server.ApiKey = AppName
 	conf.Ext.WebAesKey = "Webkbmon12g3ntSP"
 	conf.Ext.DataAesKey = "AY3b5Z72206GorMa"
 	conf.Authentication.LoginFailCaptcha = 50
