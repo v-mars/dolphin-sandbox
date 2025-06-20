@@ -1,0 +1,34 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Dolphin-Sandbox 提供了一种在安全环境中运行不可信代码的简单方式。它适用于多租户场景，允许多个用户提交代码进行执行。代码将在受限的沙箱环境中运行，限制其可访问的资源和系统调用。\nAuthorization Bearer token\nHeader:  x-enc-data = yes",
+        "title": "Dolphin-Sandbox API",
+        "contact": {
+            "name": "aigc",
+            "url": "https://github.com/v-mars/dolphin-dandbox"
+        },
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/sandbox/run": {
+            "get": {
+                "responses": {}
+            },
+            "post": {
+                "responses": {}
+            }
+        },
+        "/api/v1/sandbox/run": {
+            "put": {
+                "responses": {}
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
