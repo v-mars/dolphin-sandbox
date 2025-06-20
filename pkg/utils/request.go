@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"aigc/conf"
+	"dolphin-sandbox/conf"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -48,12 +48,12 @@ func Request(url, method string, param interface{}, client *http.Client, reqPara
 
 				return nil, nil, err
 			}
-			eData, err := EnTxtByAesWithErr(string(bdata), reqParam.EncKey)
-			if err != nil {
-				log.Errorf("request url[%s] body param enc is err %s", url, err)
-				return nil, nil, err
-			}
-			jsonBytes = []byte(eData)
+			//eData, err := EnTxtByAesWithErr(string(bdata), reqParam.EncKey)
+			//if err != nil {
+			//	log.Errorf("request url[%s] body param enc is err %s", url, err)
+			//	return nil, nil, err
+			//}
+			jsonBytes = []byte(bdata)
 		} else {
 			log.Debugf("request url[%s] param convert jsonBytes start", url)
 			jsonBytes, err = json.Marshal(param)

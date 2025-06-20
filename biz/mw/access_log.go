@@ -40,3 +40,12 @@ func AccessLog() app.HandlerFunc {
 		}
 	}
 }
+
+func GetReqClientIp(ctx context.Context, c *app.RequestContext) string {
+	remoteIP := c.ClientIP()
+	xff := c.GetHeader("X-Forwarded-For")
+	if string(xff) != "" {
+		remoteIP = string(xff)
+	}
+	return remoteIP
+}

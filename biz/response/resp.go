@@ -4,15 +4,10 @@ import (
 	"context"
 	"dolphin-sandbox/conf"
 	"dolphin-sandbox/kitex_gen/base"
-	"dolphin-sandbox/pkg/convert"
-	"dolphin-sandbox/pkg/file_folder"
-	"dolphin-sandbox/pkg/utils"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
-	"net/url"
 	"regexp"
 	"strings"
 
@@ -36,7 +31,7 @@ const (
 //}
 
 type Response struct {
-	Code      uint32      `json:"code"`
+	Code      int         `json:"code"`
 	Message   string      `json:"message"`
 	Status    string      `json:"status"`
 	RequestId string      `json:"request_id"`
@@ -90,11 +85,11 @@ func InitPageData(ctx context.Context, c *app.RequestContext, list interface{}, 
 func EncryptSuccess(ctx context.Context, c *app.RequestContext, v interface{}) {
 	reqId, _ := ctx.Value(conf.RequestIDHeaderValue).(string)
 	if v != nil && conf.GetConf().Ext.EnableWebEnc {
-		marshal, err := json.Marshal(v)
-		if err != nil {
-			return
-		}
-		v = utils.EnTxtByAes(string(marshal), DefaultAesKey)
+		//marshal, err := json.Marshal(v)
+		//if err != nil {
+		//	return
+		//}
+		//v = utils.EnTxtByAes(string(marshal), DefaultAesKey)
 	}
 	ret := Response{Code: Err_Success, Status: "success", Message: "成功.", Data: v, RequestId: reqId}
 	c.Header("x-enc-data", "yes")
@@ -156,7 +151,7 @@ func FailedMsg(ctx context.Context, c *app.RequestContext, msg error, v ...inter
 // FailedHttpCode 响应失败 code
 func FailedHttpCode[T int | uint32 | int64](ctx context.Context, c *app.RequestContext, code T, msg error, v ...interface{}) {
 	reqId, _ := ctx.Value(conf.RequestIDHeaderValue).(string)
-	ret := Response{Code: uint32(code), Status: "error", Message: msg.Error(), Data: v, RequestId: reqId}
+	ret := Response{Code: int(code), Status: "error", Message: msg.Error(), Data: v, RequestId: reqId}
 	c.Set("errorMsg", msg.Error())
 	//stack := Stack(2)
 	ResJSON(c, int(code), &ret)
@@ -165,7 +160,7 @@ func FailedHttpCode[T int | uint32 | int64](ctx context.Context, c *app.RequestC
 // FailedCode 响应失败 code
 func FailedCode[T comparable](ctx context.Context, c *app.RequestContext, code int, msg error, v ...interface{}) {
 	reqId, _ := ctx.Value(conf.RequestIDHeaderValue).(string)
-	ret := Response{Code: uint32(code), Status: "error", Message: msg.Error(), Data: v, RequestId: reqId}
+	ret := Response{Code: int(code), Status: "error", Message: msg.Error(), Data: v, RequestId: reqId}
 	c.Set("errorMsg", msg.Error())
 	//stack := Stack(2)
 	ResJSON(c, http.StatusOK, &ret)
@@ -174,7 +169,7 @@ func FailedCode[T comparable](ctx context.Context, c *app.RequestContext, code i
 // FailedCodeRecovery 响应失败 code
 func FailedCodeRecovery[T int | uint32 | int64](ctx context.Context, c *app.RequestContext, code T, msg error, RecoveryErr error) {
 	reqId, _ := ctx.Value(conf.RequestIDHeaderValue).(string)
-	ret := Response{Code: uint32(code), Status: "error", Message: msg.Error(), Data: nil, RequestId: reqId}
+	ret := Response{Code: int(code), Status: "error", Message: msg.Error(), Data: nil, RequestId: reqId}
 	c.Set("errorMsg", msg.Error())
 	if RecoveryErr != nil {
 		c.Set("stack", fmt.Errorf("%s", RecoveryErr))
@@ -197,13 +192,13 @@ func Download(ctx context.Context, c *app.RequestContext, fileName, filePath str
 
 func Res[T int | uint32 | int64](ctx context.Context, c *app.RequestContext, code T, msg string, v interface{}) {
 	reqId, _ := ctx.Value(conf.RequestIDHeaderValue).(string)
-	ret := Response{Code: uint32(code), Status: "success", Message: msg, Data: v, RequestId: reqId}
+	ret := Response{Code: int(code), Status: "success", Message: msg, Data: v, RequestId: reqId}
 	ResJSON(c, http.StatusOK, &ret)
 }
 
 func ResCode[T int | uint32 | int64](ctx context.Context, c *app.RequestContext, code T, msg string, v interface{}) {
 	reqId, _ := ctx.Value(conf.RequestIDHeaderValue).(string)
-	ret := Response{Code: uint32(code), Status: "success", Message: msg, Data: v, RequestId: reqId}
+	ret := Response{Code: int(code), Status: "success", Message: msg, Data: v, RequestId: reqId}
 	ResJSON(c, code, &ret)
 }
 
@@ -307,42 +302,27 @@ func SendDataResp(ctx context.Context, c *app.RequestContext, err error, data in
 	Err := ConvertErr(err)
 	reqId, _ := ctx.Value(conf.RequestIDHeaderValue).(string)
 	Err.RequestId = reqId
-	export, ok := c.GetQuery("export_excel")
-	if ok && (export == "csv" || export == "xlsx") {
-		fileName := fmt.Sprintf("%s_download.xlsx", convert.GetNowTimeNoFormatStr())
-		filePath := fmt.Sprintf("./%s", fileName)
-		if err := ExportExcel(ctx, c, data, filePath); err != nil {
-			SendBaseResp(ctx, c, err)
-			return
-		}
-		hlog.CtxInfof(ctx, "start download excel filepath: %s, filename: %s", filePath, fileName)
-		fileName2 := url.QueryEscape(fileName)
-		c.FileAttachment(filePath, fileName2)
-		_ = file_folder.RemoveFileOrFolder(filePath)
-		return
-	} else {
-		c.JSON(http.StatusOK, Response{
-			Code:      Err.ErrCode,
-			Message:   Err.ErrMsg,
-			RequestId: Err.RequestId,
-			Data:      data,
-		})
-	}
+	c.JSON(http.StatusOK, Response{
+		Code:      int(Err.ErrCode),
+		Message:   Err.ErrMsg,
+		RequestId: Err.RequestId,
+		Data:      data,
+	})
 	return
 }
 func SendEncDataResp(ctx context.Context, c *app.RequestContext, err error, data interface{}) {
 	Err := ConvertErr(err)
-	if data != nil && conf.GetConf().Ext.EnableWebEnc {
-		marshal, err := json.Marshal(data)
-		if err != nil {
-			return
-		}
-		data = utils.EnTxtByAes(string(marshal), DefaultAesKey)
-	}
+	//if data != nil && conf.GetConf().Ext.EnableWebEnc {
+	//	marshal, err := json.Marshal(data)
+	//	if err != nil {
+	//		return
+	//	}
+	//	data = utils.EnTxtByAes(string(marshal), DefaultAesKey)
+	//}
 	c.Header("x-enc-data", "yes")
 	reqId, _ := ctx.Value(conf.RequestIDHeaderValue).(string)
 	c.JSON(http.StatusOK, Response{
-		Code:      Err.ErrCode,
+		Code:      int(Err.ErrCode),
 		Message:   Err.ErrMsg,
 		RequestId: reqId,
 		Data:      data,
@@ -354,15 +334,29 @@ func baseResp(err ErrNo) *base.BaseResp {
 	return &base.BaseResp{Code: err.GetErrCode(), Message: err.GetErrMsg()}
 }
 
-func ExportExcel(ctx context.Context, c *app.RequestContext, data interface{}, filePath string) error {
-	var f, err = utils.WriteJsonToXlsx("Sheet1", data, "list")
-	if err != nil {
-		hlog.CtxErrorf(ctx, err.Error())
-		return err
+type SandboxResponse struct {
+	// Code is the code of the response
+	Code int `json:"code"`
+	// Message is the message of the response
+	Message string `json:"message"`
+	// Data is the data of the response
+	Data interface{} `json:"data"`
+}
+
+func SuccessResponse(data interface{}) *Response {
+	return &Response{
+		Code:    0,
+		Message: "success",
+		Data:    data,
 	}
-	if err := f.SaveAs(filePath); err != nil {
-		hlog.CtxErrorf(ctx, err.Error())
-		return fmt.Errorf("%s保存失败, %s", filePath, err)
+}
+
+func ErrorResponse(code int, message string) *Response {
+	if code >= 0 {
+		code = -1
 	}
-	return err
+	return &Response{
+		Code:    code,
+		Message: message,
+	}
 }

@@ -23,6 +23,11 @@ const docTemplate = `{
                 "responses": {}
             },
             "post": {
+                "description": "沙箱运行代码",
+                "tags": [
+                    "沙箱"
+                ],
+                "summary": "沙箱运行代码",
                 "responses": {}
             }
         },

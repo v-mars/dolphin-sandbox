@@ -20,12 +20,12 @@ type NodeJsRunner struct {
 }
 
 //go:embed prescript.js
-var nodejs_sandbox_fs []byte
+var nodejsSandboxFs []byte
 
 var (
-	REQUIRED_FS = []string{
-		path.Join(LIB_PATH, PROJECT_NAME, "node_temp"),
-		path.Join(LIB_PATH, LIB_NAME),
+	RequiredFs = []string{
+		path.Join(LibPath, ProjectName, "node_temp"),
+		path.Join(LibPath, LibName),
 		"/etc/ssl/certs/ca-certificates.crt",
 		"/etc/nsswitch.conf",
 		"/etc/resolv.conf",
@@ -44,16 +44,16 @@ func (p *NodeJsRunner) Run(
 	configuration := static.GetSandboxGlobalConfigurations()
 
 	// capture the output
-	output_handler := runner.NewOutputCaptureRunner()
-	output_handler.SetTimeout(timeout)
+	outputHandler := runner.NewOutputCaptureRunner()
+	outputHandler.SetTimeout(timeout)
 
-	err := p.WithTempDir("/", REQUIRED_FS, func(root_path string) error {
-		output_handler.SetAfterExitHook(func() {
-			os.RemoveAll(root_path)
+	err := p.WithTempDir("/", RequiredFs, func(rootPath string) error {
+		outputHandler.SetAfterExitHook(func() {
+			os.RemoveAll(rootPath)
 		})
 
 		// initialize the environment
-		script_path, err := p.InitializeEnvironment(code, preload, root_path)
+		scriptPath, err := p.InitializeEnvironment(code, preload, rootPath)
 		if err != nil {
 			return err
 		}
@@ -61,7 +61,7 @@ func (p *NodeJsRunner) Run(
 		// create a new process
 		cmd := exec.Command(
 			static.GetSandboxGlobalConfigurations().NodejsPath,
-			script_path,
+			scriptPath,
 			strconv.Itoa(static.SandboxUserUid),
 			strconv.Itoa(static.SandboxGroupId),
 			options.Json(),
@@ -78,7 +78,7 @@ func (p *NodeJsRunner) Run(
 		}
 
 		// capture the output
-		err = output_handler.CaptureOutput(cmd)
+		err = outputHandler.CaptureOutput(cmd)
 		if err != nil {
 			return err
 		}
@@ -90,7 +90,7 @@ func (p *NodeJsRunner) Run(
 		return nil, nil, nil, err
 	}
 
-	return output_handler.GetStdout(), output_handler.GetStderr(), output_handler.GetDone(), nil
+	return outputHandler.GetStdout(), outputHandler.GetStderr(), outputHandler.GetDone(), nil
 }
 
 func (p *NodeJsRunner) InitializeEnvironment(code string, preload string, root_path string) (string, error) {
@@ -98,9 +98,9 @@ func (p *NodeJsRunner) InitializeEnvironment(code string, preload string, root_p
 		releaseLibBinary()
 	}
 
-	node_sandbox_file := string(nodejs_sandbox_fs)
+	nodeSandboxFile := string(nodejsSandboxFs)
 	if preload != "" {
-		node_sandbox_file = fmt.Sprintf("%s\n%s", preload, node_sandbox_file)
+		nodeSandboxFile = fmt.Sprintf("%s\n%s", preload, nodeSandboxFile)
 	}
 
 	// join nodejs_sandbox_fs and code
@@ -108,14 +108,14 @@ func (p *NodeJsRunner) InitializeEnvironment(code string, preload string, root_p
 	code = base64.StdEncoding.EncodeToString([]byte(code))
 	// FIXE: redeclared function causes code injection
 	evalCode := fmt.Sprintf("eval(Buffer.from('%s', 'base64').toString('utf-8'))", code)
-	code = node_sandbox_file + evalCode
+	code = nodeSandboxFile + evalCode
 
 	// override root_path/tmp/sandbox-nodejs-project/prescript.js
-	script_path := path.Join(root_path, LIB_PATH, PROJECT_NAME, "node_temp/node_temp/test.js")
-	err := os.WriteFile(script_path, []byte(code), 0755)
+	scriptPath := path.Join(root_path, LibPath, ProjectName, "node_temp/node_temp/test.js")
+	err := os.WriteFile(scriptPath, []byte(code), 0755)
 	if err != nil {
 		return "", err
 	}
 
-	return script_path, nil
+	return scriptPath, nil
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func MaxWorker(max int, skipper ...SkipperFunc) app.HandlerFunc {
-	hlog.Info("setting max workers to %d", max)
+	hlog.Infof("setting max workers to %d", max)
 	sem := make(chan struct{}, max)
 	return func(ctx context.Context, c *app.RequestContext) {
 		sem <- struct{}{}
@@ -26,7 +26,7 @@ type MaxRequestIface struct {
 }
 
 func MaxRequest(max int, skipper ...SkipperFunc) app.HandlerFunc {
-	hlog.Info("setting max requests to %d", max)
+	hlog.Infof("setting max requests to %d", max)
 	m := &MaxRequestIface{
 		current: 0,
 		lock:    &sync.RWMutex{},

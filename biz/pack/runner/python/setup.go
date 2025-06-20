@@ -17,52 +17,52 @@ import (
 )
 
 //go:embed python.so
-var python_lib []byte
+var pythonLib []byte
 
 const (
-	LIB_PATH = "/var/sandbox/sandbox-python"
-	LIB_NAME = "python.so"
+	LibPath = "/var/sandbox/sandbox-python"
+	LibName = "python.so"
 )
 
 func init() {
 	releaseLibBinary(true)
 }
 
-func releaseLibBinary(force_remove_old_lib bool) {
+func releaseLibBinary(forceRemoveOldLib bool) {
 	log.Println("initializing python runner environment...")
 	// remove the old lib
-	if _, err := os.Stat(path.Join(LIB_PATH, LIB_NAME)); err == nil {
-		if force_remove_old_lib {
-			err := os.Remove(path.Join(LIB_PATH, LIB_NAME))
+	if _, err := os.Stat(path.Join(LibPath, LibName)); err == nil {
+		if forceRemoveOldLib {
+			err := os.Remove(path.Join(LibPath, LibName))
 			if err != nil {
-				log.Panic(fmt.Sprintf("failed to remove %s", path.Join(LIB_PATH, LIB_NAME)))
+				log.Panic(fmt.Sprintf("failed to remove %s", path.Join(LibPath, LibName)))
 			}
 
 			// write the new lib
-			err = os.MkdirAll(LIB_PATH, 0755)
+			err = os.MkdirAll(LibPath, 0755)
 			if err != nil {
-				log.Panic(fmt.Sprintf("failed to create %s", LIB_PATH))
+				log.Panic(fmt.Sprintf("failed to create %s", LibPath))
 			}
-			err = os.WriteFile(path.Join(LIB_PATH, LIB_NAME), python_lib, 0755)
+			err = os.WriteFile(path.Join(LibPath, LibName), pythonLib, 0755)
 			if err != nil {
-				log.Panic(fmt.Sprintf("failed to write %s", path.Join(LIB_PATH, LIB_NAME)))
+				log.Panic(fmt.Sprintf("failed to write %s", path.Join(LibPath, LibName)))
 			}
 		}
 	} else {
-		err = os.MkdirAll(LIB_PATH, 0755)
+		err = os.MkdirAll(LibPath, 0755)
 		if err != nil {
-			log.Panic(fmt.Sprintf("failed to create %s", LIB_PATH))
+			log.Panic(fmt.Sprintf("failed to create %s", LibPath))
 		}
-		err = os.WriteFile(path.Join(LIB_PATH, LIB_NAME), python_lib, 0755)
+		err = os.WriteFile(path.Join(LibPath, LibName), pythonLib, 0755)
 		if err != nil {
-			log.Panic(fmt.Sprintf("failed to write %s", path.Join(LIB_PATH, LIB_NAME)))
+			log.Panic(fmt.Sprintf("failed to write %s", path.Join(LibPath, LibName)))
 		}
 		log.Println("python runner environment initialized")
 	}
 }
 
 func checkLibAvaliable() bool {
-	if _, err := os.Stat(path.Join(LIB_PATH, LIB_NAME)); err != nil {
+	if _, err := os.Stat(path.Join(LibPath, LibName)); err != nil {
 		return false
 	}
 
@@ -157,7 +157,7 @@ func InstallDependencies(requirements string) error {
 			}
 
 			python_dependencies.SetupDependency(packageName, version)
-			log.Println("Python dependency installed: %s %s", packageName, version)
+			log.Printf("Python dependency installed: %s %s\n", packageName, version)
 		}
 
 		return nil

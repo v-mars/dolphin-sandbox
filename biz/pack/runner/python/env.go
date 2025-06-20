@@ -33,7 +33,7 @@ func PreparePythonDependenciesEnv() error {
 				"bash",
 				path.Join(root_path, "env.sh"),
 				lib_path,
-				LIB_PATH,
+				LibPath,
 			)
 			exec_cmd.Stderr = os.Stderr
 

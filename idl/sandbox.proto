@@ -7,14 +7,14 @@ option go_package = "sandbox";
 import "api.proto";
 import "google/protobuf/struct.proto";
 
-message DemoQuery {
+message SandboxQuery {
   int64 id = 1[(api.query)="id",(api.body)="id"];
   string name = 2[(api.query)="name",(api.body)="name"];
   optional bool enabled = 22[(api.query)="enabled",(api.go_tag)="json:\"enabled,omitempty\""];
 }
 
 
-message DemoPost {
+message SandboxPost {
   string name = 3[(api.query)="name",(api.body)="name,required",(api.vd)="len($)>1"];
   string desc = 4[(api.query)="desc",(api.body)="desc"];
   int32 ippool_id = 5[(api.query)="ippool_id",(api.body)="ippool_id"];
@@ -23,7 +23,7 @@ message DemoPost {
   bool allow_lan = 22[(api.query)="allow_lan",(api.go_tag)="json:\"allow_lan,omitempty\""];
 }
 
-message DemoPut {
+message SandboxPut {
 //  optional string title = 2[(api.query)="title",(api.body)="title,omitempty"];
   optional string name = 3[(api.query)="name",(api.body)="name,omitempty"];
   optional string desc = 4[(api.query)="desc",(api.body)="desc,omitempty"];
@@ -33,11 +33,11 @@ message DemoPut {
   optional bool allow_lan = 22[(api.query)="allow_lan",(api.go_tag)="json:\"allow_lan,omitempty\""];
 }
 
-message DemoDel {
+message SandboxDel {
 
 }
 
-message DemoResp {
+message SandboxResp {
   int64 id = 1[(api.query)="id",(api.body)="id"];
   string name = 3[(api.query)="name",(api.body)="name,required",(api.vd)="len($)>1"];
   string desc = 4[(api.query)="desc",(api.body)="desc"];
@@ -46,14 +46,17 @@ message DemoResp {
   string updated_at = 121[(api.query)="updated_at",(api.body)="updated_at"];
 }
 
-service Demo {
-  rpc GetDemo(DemoQuery) returns(DemoResp) {
-    option (api.get) = "/api/sandbox/run";
-  }
-  rpc PostDemo(DemoPost) returns(DemoResp) {
+service Sandbox {
+  rpc RunCodeSandbox(SandboxPost) returns(SandboxResp) {
     option (api.post) = "/api/sandbox/run";
   }
-  rpc PutDemo(DemoPut) returns(DemoResp) {
-    option (api.put) = "/api/v1/sandbox/run";
+  rpc GetDependenciesSandbox(SandboxQuery) returns(SandboxResp) {
+    option (api.get) = "/api/sandbox/dependencies";
+  }
+  rpc UpdateDependenciesSandbox(SandboxQuery) returns(SandboxResp) {
+    option (api.post) = "/api/v1/sandbox/dependencies/update";
+  }
+  rpc RefreshDependenciesSandbox(SandboxQuery) returns(SandboxResp) {
+    option (api.get) = "/api/v1/sandbox/dependencies/refresh";
   }
 }

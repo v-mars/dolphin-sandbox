@@ -9,16 +9,16 @@ import (
 )
 
 const (
-	LIB_PATH     = "/var/sandbox/sandbox-nodejs"
-	LIB_NAME     = "nodejs.so"
-	PROJECT_NAME = "nodejs-project"
+	LibPath     = "/var/sandbox/sandbox-nodejs"
+	LibName     = "nodejs.so"
+	ProjectName = "nodejs-project"
 )
 
 //go:embed nodejs.so
-var nodejs_lib []byte
+var nodejsLib []byte
 
 //go:embed dependens
-var nodejs_dependens embed.FS // it's a directory
+var nodejsDependens embed.FS // it's a directory
 
 func init() {
 	releaseLibBinary()
@@ -26,27 +26,27 @@ func init() {
 
 func releaseLibBinary() {
 	log.Println("initializing nodejs runner environment...")
-	os.RemoveAll(LIB_PATH)
+	os.RemoveAll(LibPath)
 
-	err := os.MkdirAll(LIB_PATH, 0755)
+	err := os.MkdirAll(LibPath, 0755)
 	if err != nil {
-		log.Panic(fmt.Sprintf("failed to create %s", LIB_PATH))
+		log.Panic(fmt.Sprintf("failed to create %s", LibPath))
 	}
-	err = os.WriteFile(path.Join(LIB_PATH, LIB_NAME), nodejs_lib, 0755)
+	err = os.WriteFile(path.Join(LibPath, LibName), nodejsLib, 0755)
 	if err != nil {
-		log.Panic(fmt.Sprintf("failed to write %s", path.Join(LIB_PATH, PROJECT_NAME)))
+		log.Panic(fmt.Sprintf("failed to write %s", path.Join(LibPath, ProjectName)))
 	}
 
 	// copy the nodejs project into /tmp/sandbox-nodejs-project
-	err = os.MkdirAll(path.Join(LIB_PATH, PROJECT_NAME), 0755)
+	err = os.MkdirAll(path.Join(LibPath, ProjectName), 0755)
 	if err != nil {
-		log.Panic(fmt.Sprintf("failed to create %s", path.Join(LIB_PATH, PROJECT_NAME)))
+		log.Panic(fmt.Sprintf("failed to create %s", path.Join(LibPath, ProjectName)))
 	}
 
 	// copy the nodejs project into /tmp/sandbox-nodejs-project
 	var recursively_copy func(src string, dst string) error
 	recursively_copy = func(src string, dst string) error {
-		entries, err := nodejs_dependens.ReadDir(src)
+		entries, err := nodejsDependens.ReadDir(src)
 		if err != nil {
 			return err
 		}
@@ -63,7 +63,7 @@ func releaseLibBinary() {
 					return err
 				}
 			} else {
-				data, err := nodejs_dependens.ReadFile(src_path)
+				data, err := nodejsDependens.ReadFile(src_path)
 				if err != nil {
 					return err
 				}
@@ -76,7 +76,7 @@ func releaseLibBinary() {
 		return nil
 	}
 
-	err = recursively_copy("dependens", path.Join(LIB_PATH, PROJECT_NAME))
+	err = recursively_copy("dependens", path.Join(LibPath, ProjectName))
 	if err != nil {
 		log.Panic("failed to copy nodejs project")
 	}
@@ -84,7 +84,7 @@ func releaseLibBinary() {
 }
 
 func checkLibAvaliable() bool {
-	if _, err := os.Stat(path.Join(LIB_PATH, LIB_NAME)); err != nil {
+	if _, err := os.Stat(path.Join(LibPath, LibName)); err != nil {
 		return false
 	}
 

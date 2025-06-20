@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"dolphin-sandbox/biz/dal/alog"
 	"dolphin-sandbox/biz/dal/bind"
-	"dolphin-sandbox/biz/mw"
 	"dolphin-sandbox/biz/response"
 	"dolphin-sandbox/cmd"
 	"dolphin-sandbox/conf"
@@ -46,13 +45,6 @@ func Init() {
 
 	// 参数绑定报错自定义初始化
 	bind.Init()
-
-	// DB连接初始化
-	//migrate.Migrate()
-
-	// JWT连接初始化
-	mw.InitJwt()
-	//hlog.Debug(time.Since(startTime).String())
 
 }
 func setSwag() {

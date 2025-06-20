@@ -52,3 +52,43 @@ func _putdemoMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getsandboxMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _postsandboxMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _putsandboxMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _runcodesandboxMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _getdependenciessandboxMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _dependenciesMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _refreshdependenciessandboxMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _updatedependenciessandboxMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

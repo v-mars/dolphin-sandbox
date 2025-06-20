@@ -21,14 +21,18 @@ func Register(r *server.Hertz) {
 		_api := root.Group("/api", _apiMw()...)
 		{
 			_sandbox := _api.Group("/sandbox", _sandboxMw()...)
-			_sandbox.GET("/run", append(_getdemoMw(), sandbox.GetDemo)...)
-			_sandbox.POST("/run", append(_postdemoMw(), sandbox.PostDemo)...)
+			_sandbox.GET("/dependencies", append(_getdependenciessandboxMw(), sandbox.GetDependenciesSandbox)...)
+			_sandbox.POST("/run", append(_runcodesandboxMw(), sandbox.RunCodeSandbox)...)
 		}
 		{
 			_v1 := _api.Group("/v1", _v1Mw()...)
 			{
 				_sandbox0 := _v1.Group("/sandbox", _sandbox0Mw()...)
-				_sandbox0.PUT("/run", append(_putdemoMw(), sandbox.PutDemo)...)
+				{
+					_dependencies := _sandbox0.Group("/dependencies", _dependenciesMw()...)
+					_dependencies.GET("/refresh", append(_refreshdependenciessandboxMw(), sandbox.RefreshDependenciesSandbox)...)
+					_dependencies.POST("/update", append(_updatedependenciessandboxMw(), sandbox.UpdateDependenciesSandbox)...)
+				}
 			}
 		}
 	}
