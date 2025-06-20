@@ -5,7 +5,7 @@
 Dolphin-Sandbox 提供了一种在安全环境中运行不可信代码的简单方式。它适用于多租户场景，允许多个用户提交代码进行执行。代码将在受限的沙箱环境中运行，限制其可访问的资源和系统调用。
 
 ## 功能特性
-- 支持多种编程语言（如 Golang、Python、JavaScript、Shell）
+- 支持多种编程语言（如: Golang、Python、JavaScript、Shell）
 - 支持MCP调用
 - 支持HTTP API调用
 - 多租户安全隔离机制
